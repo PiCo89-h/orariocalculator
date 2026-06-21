@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnOraUscita = document.getElementById('btnOraUscita');
   // Aggiungi un ascoltatore (event listener) a ogni input per salvare automaticamente
     [inputIngresso, inputInizioPausa, inputFinePausa].forEach(el => {
-    el.addEventListener('input', salvaStatoTemporaneo);
+    el.addEventListener('change', salvaStatoTemporaneo);
+    el.addEventListener('blur', salvaStatoTemporaneo);
     });
 
     // Controllo di Sicurezza: Evita crash a catena se manca qualche ID nell'HTML
@@ -123,7 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configura gli eventi e attiva le funzioni
     configuraEventiAscolto();
     inizializzaIndexedDB(() => { 
-        caricaDatiDaIndexedDB(); 
+      ripristinaStato();  
+      caricaDatiDaIndexedDB(); 
     });
 
     // Avvia il ciclo continuo in modo sicuro
@@ -225,8 +227,6 @@ function caricaDatiDaIndexedDB() {
         console.error("Impossibile leggere i dati salvati:", e);
     }
 }
-
-ripristinaStato():
 
 // --- FUNZIONI DI CALCOLO CORENTI E CORRETTE ---
 function timbraOraAttuale(inputField) {
