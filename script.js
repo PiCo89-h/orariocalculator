@@ -1,4 +1,11 @@
-// --- STATO DELL'APPLICAZIONE (UNICA FONTE DI VERITÀ) ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Service Worker registrato con successo!', reg))
+      .catch(err => console.log('Errore nella registrazione del Service Worker:', err));
+  });
+}
+// --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
     stdMins: 0,
     minMins: 0,
@@ -576,13 +583,4 @@ function riproduciFeedbackAcustico() {
     } catch (e) {
         console.log("Audio contestuale bloccato dalle impostazioni utente", e);
     }
-}
-
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker registrato con successo!', reg))
-      .catch(err => console.log('Errore nella registrazione del Service Worker:', err));
-  });
 }
