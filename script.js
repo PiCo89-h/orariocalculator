@@ -47,23 +47,45 @@ function ripristinaStato(callback) {
 }
 
 function avviaAudioSilenzioso() {
-    if (audioCtx) return; // già attivo
 
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // ✅ crea SOLO al primo click
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // ✅ fondamentale per Chrome/Android
     audioCtx.resume();
+
+    // evita duplicazioni
+    if (osc) return;
+
     osc = audioCtx.createOscillator();
     gainNode = audioCtx.createGain();
 
-    // frequenza bassissima
-    osc.frequency.value = 20;
-
-    // volume praticamente zero
-    gainNode.gain.value = 0.0001;
+    // ✅ valori compatibili Android
+    osc.frequency.value = 200;
+    gainNode.gain.value = 0.01;
 
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
     osc.start();
+
+    // ✅ ATTIVA MEDIASESSION QUI (IMPORTANTE)
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "playing";
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: "Avvio monitor...",
+            artist: "Inizializzazione",
+            album: "Orario Lavoro Pro"
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => {});
+        navigator.mediaSession.setActionHandler('pause', () => {
+            navigator.mediaSession.playbackState = "playing";
+        });
+    }
 }
 
 function fermaAudioSilenzioso() {
@@ -74,7 +96,7 @@ function fermaAudioSilenzioso() {
         }
         if (gainNode) gainNode.disconnect();
         if (audioCtx) audioCtx.close();
-    } catch (e) {}
+    } catch(e) {}
 
     audioCtx = null;
     osc = null;
@@ -207,45 +229,30 @@ function configuraEventiAscolto() {
     btnSalvaGiornata.addEventListener('click', () => archiviaGiornataCorrente());
     btnSvuotaStorico.addEventListener('click', () => svuotaTuttoArchivio());
     btnEsportaCSV.addEventListener('click', () => esportaInFileCSV());
+  
+    toggleNotifica.addEventListener('click', () => {
 
-    toggleNotifica.addEventListener('change', (e) => {
+    if (toggleNotifica.checked) {
 
-    if (e.target.checked) {
+        console.log("CLICK UTENTE ✅");
 
-        try {
-            // ✅ avvia WebAudio (trucco definitivo)
-            avviaAudioSilenzioso();
+        // ✅ avvio audio (user gesture valida)
+        avviaAudioSilenzioso();
 
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = "playing";
-
-                // evita che Android "spenga" la sessione
-                navigator.mediaSession.setActionHandler('play', () => {});
-                navigator.mediaSession.setActionHandler('pause', () => {
-                    navigator.mediaSession.playbackState = "playing";
-                });
-            }
-
-            console.log("✅ Notifica persistente ATTIVA");
-
-        } catch (err) {
-            console.log("Errore WebAudio:", err);
-        }
-
+        // ✅ aggiorna subito UI + MediaSession
         aggiornaCalcoliInterfaccia();
 
     } else {
+
+        console.log("STOP UTENTE ❌");
 
         fermaAudioSilenzioso();
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = "none";
         }
-
-        console.log("❌ Notifica disattivata");
     }
-
-});
+});  
 }
 
 // --- GESTIONE COPERTA INDEXEDDB (ANTI-CRASH AMBIENTE LOCALE) ---
