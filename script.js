@@ -46,6 +46,41 @@ function ripristinaStato(callback) {
     };
 }
 
+function avviaAudioSilenzioso() {
+    if (audioCtx) return; // già attivo
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    osc = audioCtx.createOscillator();
+    gainNode = audioCtx.createGain();
+
+    // frequenza bassissima
+    osc.frequency.value = 20;
+
+    // volume praticamente zero
+    gainNode.gain.value = 0.0001;
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    osc.start();
+}
+
+function fermaAudioSilenzioso() {
+    try {
+        if (osc) {
+            osc.stop();
+            osc.disconnect();
+        }
+        if (gainNode) gainNode.disconnect();
+        if (audioCtx) audioCtx.close();
+    } catch (e) {}
+
+    audioCtx = null;
+    osc = null;
+    gainNode = null;
+}
+
 // --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
     stdMins: 0,
@@ -71,6 +106,10 @@ let inputIngresso, inputInizioPausa, inputFinePausa, inputUscita;
 let pCircle, oraCentroWidget, testoContoRovescia, badgeStato, toggleNotifica, silenceAudio;
 let btnSalvaGiornata, tabellaLogArchivio, totaleStoricoBancaOre, btnEsportaCSV, btnSvuotaStorico;
 let btnOraIngresso, btnInizioPausa, btnFinePausa, btnOraUscita;
+// WebAudio per notifica persistente
+let audioCtx = null;
+let osc = null;
+let gainNode = null;
 
 // --- INIZIALIZZAZIONE SICURA AL CARICAMENTO DELLA PAGINA ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -171,19 +210,43 @@ function configuraEventiAscolto() {
     btnEsportaCSV.addEventListener('click', () => esportaInFileCSV());
 
     toggleNotifica.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            silenceAudio.play().catch(() => console.log("Riproduzione audio iniziale silenziata dal browser"));
+
+    if (e.target.checked) {
+
+        try {
+            // ✅ avvia WebAudio (trucco definitivo)
+            avviaAudioSilenzioso();
+
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = "playing";
-                navigator.mediaSession.setActionHandler('play', () => silenceAudio.play());
-                navigator.mediaSession.setActionHandler('pause', () => silenceAudio.play());
+
+                // evita che Android "spenga" la sessione
+                navigator.mediaSession.setActionHandler('play', () => {});
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    navigator.mediaSession.playbackState = "playing";
+                });
             }
-            aggiornaCalcoliInterfaccia();
-        } else {
-            silenceAudio.pause();
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "none";
+
+            console.log("✅ Notifica persistente ATTIVA");
+
+        } catch (err) {
+            console.log("Errore WebAudio:", err);
         }
-    });
+
+        aggiornaCalcoliInterfaccia();
+
+    } else {
+
+        fermaAudioSilenzioso();
+
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "none";
+        }
+
+        console.log("❌ Notifica disattivata");
+    }
+
+});
 }
 
 // --- GESTIONE COPERTA INDEXEDDB (ANTI-CRASH AMBIENTE LOCALE) ---
