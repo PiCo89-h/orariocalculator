@@ -5,6 +5,31 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('Errore nella registrazione del Service Worker:', err));
   });
 }
+
+// Funzione per salvare lo stato dei campi
+function salvaStatoTemporaneo() {
+    localStorage.setItem('ingresso', inputIngresso.value);
+    localStorage.setItem('inizioPausa', inputInizioPausa.value);
+    localStorage.setItem('finePausa', inputFinePausa.value);
+}
+
+// Funzione per ripristinare i campi all'apertura
+function ripristinaStato() {
+    inputIngresso.value = localStorage.getItem('ingresso') || "";
+    inputInizioPausa.value = localStorage.getItem('inizioPausa') || "";
+    inputFinePausa.value = localStorage.getItem('finePausa') || "";
+    aggiornaCalcoliInterfaccia();
+}
+
+// Esegui questo all'avvio
+window.addEventListener('load', ripristinaStato);
+
+// Aggiungi un ascoltatore (event listener) a ogni input per salvare automaticamente
+[inputIngresso, inputInizioPausa, inputFinePausa].forEach(el => {
+    el.addEventListener('input', salvaStatoTemporaneo);
+});
+
+
 // --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
     stdMins: 0,
