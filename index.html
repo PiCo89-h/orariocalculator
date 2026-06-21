@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banca Ore Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">🏢 ORARIO LAVORO PRO</h1>
+            <span class="app-version">v0.1</span>
+        </header>
+
+        <nav class="tab-navigation">
+            <button id="tab-btn-dashboard" class="tab-button active">Dashboard</button>
+            <button id="tab-btn-archivio" class="tab-button">Archivio</button>
+        </nav>
+
+        <section id="view-dashboard" class="tab-view">
+            <div class="progress-container">
+                <svg class="progress-svg" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="85" class="circle-bg" />
+                    <circle id="pCircle" cx="100" cy="100" r="85" class="circle-progress" />
+                </svg>
+                <div class="progress-text-container">
+                    <span class="label-center">Target Uscita</span>
+                    <span id="oraCentroWidget" class="time-center">--:--</span>
+                    <span id="testoContoRovescia" class="status-center">In attesa...</span>
+                </div>
+            </div>
+
+            <div id="badgeStato" class="status-badge state-waiting">
+                Compila i campi sottostanti per avviare il calcolo.
+            </div>
+
+            <div class="control-panel">
+                
+                <div class="input-row">
+                    <label class="input-label" for="selectTipoGiornata">📋 Tipo Giorno:</label>
+                    <select id="selectTipoGiornata" class="input-select" style="flex: 1;">
+                        <option value="standard">⚡ Giornata Standard</option>
+                        <option value="ferie">🌴 Ferie / Festività</option>
+                        <option value="malattia">🩺 Malattia</option>
+                        <option value="permesso_intero">📄 Permesso Intero</option>
+                        <option value="permesso_orario">⏱️ Permesso Orario</option>
+                    </select>
+                </div>
+
+                <div id="divPermessoOrario" class="input-row hidden">
+                    <label class="input-label" for="inputPermessoOrario">⏱️ Ore Permesso:</label>
+                    <input type="time" id="inputPermessoOrario" class="input-time" style="flex: 1; margin-right: 0;">
+                </div>
+
+                <div class="input-row">
+                    <label class="input-label">📥 Ingresso:</label>
+                    <input type="time" id="inputIngresso" class="input-time">
+                    <button id="btnOraIngresso" class="btn-action btn-sky">Ora</button>
+                </div>
+
+                <div class="input-row">
+                    <label class="input-label">🥪 Inizio Pausa:</label>
+                    <input type="time" id="inputInizioPausa" class="input-time">
+                    <button id="btnInizioPausa" class="btn-action btn-slate">Ora</button>
+                </div>
+
+                <div class="input-row">
+                    <label class="input-label">☕ Fine Pausa:</label>
+                    <input type="time" id="inputFinePausa" class="input-time">
+                    <button id="btnFinePausa" class="btn-action btn-slate">Ora</button>
+                </div>
+
+                <div class="input-row">
+                    <label class="input-label">📤 Uscita Effettiva:</label>
+                    <input type="time" id="inputUscita" class="input-time">
+                    <button id="btnOraUscita" class="btn-action btn-sky">Ora</button>
+                </div>
+            </div>
+
+            <button id="btnSalvaGiornata" class="btn-submit">💾 Salva Giornata in Archivio</button>
+
+            <div class="toggle-container">
+                <div class="toggle-text">
+                    <span class="toggle-title">Widget Schermo Bloccato</span>
+                    <span class="toggle-subtitle">Usa il player multimediale di sistema</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="toggleNotifica">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </section>
+
+        <section id="view-archivio" class="tab-view hidden">
+            <div class="summary-card">
+                <span class="summary-label">Totale Storico Accumulato:</span>
+                <span id="totaleStoricoBancaOre" class="summary-value balance-neutral">0h 00m</span>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>DATA</th>
+                            <th>INGR.</th>
+                            <th>PAUSA</th>
+                            <th>USCITA</th>
+                            <th>SALDO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabellaLogArchivio">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="archive-actions">
+                <button id="btnEsportaCSV" class="btn-archive btn-outline">📥 Esporta CSV</button>
+                <button id="btnSvuotaStorico" class="btn-archive btn-danger">🗑️ Svuota Tutto</button>
+            </div>
+        </section>
+
+        <audio id="silenceAudio" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA=="></audio>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
