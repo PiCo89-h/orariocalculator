@@ -1,6 +1,6 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./orariocalculator/sw.js')
+    navigator.serviceWorker.register('./sw.js')
       .then(reg => console.log('Service Worker registrato con successo!', reg))
       .catch(err => console.log('Errore nella registrazione del Service Worker:', err));
   });
