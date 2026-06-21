@@ -50,7 +50,7 @@ function avviaAudioSilenzioso() {
     if (audioCtx) return; // già attivo
 
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
+    audioCtx.resume();
     osc = audioCtx.createOscillator();
     gainNode = audioCtx.createGain();
 
@@ -130,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     testoContoRovescia = document.getElementById('testoContoRovescia');
     badgeStato = document.getElementById('badgeStato');
     toggleNotifica = document.getElementById('toggleNotifica');
-    silenceAudio = document.getElementById('silenceAudio');
     btnSalvaGiornata = document.getElementById('btnSalvaGiornata');
     tabellaLogArchivio = document.getElementById('tabellaLogArchivio');
     totaleStoricoBancaOre = document.getElementById('totaleStoricoBancaOre');
@@ -151,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tabDashboard, tabArchivio, viewDashboard, viewArchivio, selectTipoGiornata,
         divPermessoOrario, inputPermessoOrario, inputIngresso, inputInizioPausa,
         inputFinePausa, inputUscita, pCircle, oraCentroWidget, testoContoRovescia,
-        badgeStato, toggleNotifica, silenceAudio, btnSalvaGiornata, tabellaLogArchivio,
+        badgeStato, toggleNotifica, btnSalvaGiornata, tabellaLogArchivio,
         totaleStoricoBancaOre, btnEsportaCSV, btnSvuotaStorico, btnOraIngresso,
         btnInizioPausa, btnFinePausa, btnOraUscita
     ];
