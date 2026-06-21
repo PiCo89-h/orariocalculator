@@ -21,9 +21,6 @@ function ripristinaStato() {
     aggiornaCalcoliInterfaccia();
 }
 
-// Esegui questo all'avvio
-window.addEventListener('load', ripristinaStato);
-
 // --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
     stdMins: 0,
@@ -82,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
     [inputIngresso, inputInizioPausa, inputFinePausa].forEach(el => {
     el.addEventListener('input', salvaStatoTemporaneo);
     });
+
+  // Esegui questo all'avvio
+window.addEventListener('load', ripristinaStato);
 
     // Controllo di Sicurezza: Evita crash a catena se manca qualche ID nell'HTML
     const elementiRichiesti = [
