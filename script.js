@@ -48,12 +48,12 @@ function ripristinaStato(callback) {
 
 function avviaAudioSilenzioso() {
 
-    // ✅ crea SOLO al primo click
+    // crea SOLO al primo click
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    // ✅ fondamentale per Chrome/Android
+    // fondamentale per Chrome/Android
     audioCtx.resume();
 
     // evita duplicazioni
@@ -62,7 +62,7 @@ function avviaAudioSilenzioso() {
     osc = audioCtx.createOscillator();
     gainNode = audioCtx.createGain();
 
-    // ✅ valori compatibili Android
+    // valori compatibili Android
     osc.frequency.value = 200;
     gainNode.gain.value = 0.01;
 
@@ -71,20 +71,30 @@ function avviaAudioSilenzioso() {
 
     osc.start();
 
-    // ✅ ATTIVA MEDIASESSION QUI (IMPORTANTE)
+    // 🔥 MEDIA SESSION ATTIVA SUBITO
     if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = "playing";
 
         navigator.mediaSession.metadata = new MediaMetadata({
             title: "Avvio monitor...",
-            artist: "Inizializzazione",
+            artist: "Attivo",
             album: "Orario Lavoro Pro"
         });
 
+        // gestori obbligatori
         navigator.mediaSession.setActionHandler('play', () => {});
         navigator.mediaSession.setActionHandler('pause', () => {
             navigator.mediaSession.playbackState = "playing";
         });
+
+        // 🔥 QUESTO FA APPARIRE LA NOTIFICA
+        if ('setPositionState' in navigator.mediaSession) {
+            navigator.mediaSession.setPositionState({
+                duration: 100,
+                playbackRate: 1,
+                position: 0
+            });
+        }
     }
 }
 
@@ -236,11 +246,16 @@ function configuraEventiAscolto() {
 
         console.log("CLICK UTENTE ✅");
 
-        // ✅ avvio audio (user gesture valida)
+        // ✅ avvia audio (fondamentale)
         avviaAudioSilenzioso();
 
-        // ✅ aggiorna subito UI + MediaSession
+        // ✅ aggiorna UI subito
         aggiornaCalcoliInterfaccia();
+
+        // 🔥 FORZA aggiornamento MediaSession
+        setTimeout(() => {
+            aggiornaCalcoliInterfaccia();
+        }, 200);
 
     } else {
 
@@ -252,7 +267,7 @@ function configuraEventiAscolto() {
             navigator.mediaSession.playbackState = "none";
         }
     }
-});  
+}); 
 }
 
 // --- GESTIONE COPERTA INDEXEDDB (ANTI-CRASH AMBIENTE LOCALE) ---
@@ -672,13 +687,31 @@ function aggiornaPlayerBloccoSchermo(pct, oraTargetFissa, sottoTesto, etichettaS
         ctx.fillStyle = "#64748b";
         ctx.font = "bold 22px system-ui, -apple-system, sans-serif";
         ctx.fillText(etichettaStato.toUpperCase(), cX, 465);
+         
+let emoji = "⚪";
+if (colHex === "#ef4444") emoji = "🔴";
+else if (colHex === "#f59e0b") emoji = "🟠";
+else if (colHex === "#10b981") emoji = "🟢";
 
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: `Target Uscita: ${oraTargetFissa}`,
-            artist: `${etichettaStato} (${sottoTesto})`,
-            album: `Banca Ore Pro • Pausa: ${calcoliOggi.pausaMins}m`,
-            artwork: [{ src: canvas.toDataURL('image/png'), sizes: '512x512', type: 'image/png' }]
-        });
+navigator.mediaSession.metadata = new MediaMetadata({
+    title: `${emoji} Uscita: ${oraTargetFissa}`,
+    artist: `${sottoTesto}`,
+    album: `${etichettaStato} • Pausa: ${calcoliOggi.pausaMins}m`,
+    artwork: [{
+        src: canvas.toDataURL('image/png'),
+        sizes: '512x512',
+        type: 'image/png'
+    }]
+});
+
+if ('setPositionState' in navigator.mediaSession) {
+    navigator.mediaSession.setPositionState({
+        duration: 100,
+        playbackRate: 1,
+        position: pct
+    });
+}
+
     } catch (e) {
         console.log("Errore nella generazione del Widget multimediale:", e);
     }
