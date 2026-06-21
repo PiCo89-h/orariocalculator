@@ -459,7 +459,7 @@ function archiviaGiornataCorrente() {
             inputPermessoOrario.value = "";
             selectTipoGiornata.value = "standard";
             aggiornaCalcoliInterfaccia();
-            localStorage.clear():
+            localStorage.clear();
         };
     } catch(e) {
         console.error("Impossibile salvare su DB:", e);
