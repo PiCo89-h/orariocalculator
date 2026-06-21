@@ -61,12 +61,17 @@ function avviaAudioSilenzioso() {
 
     osc = audioCtx.createOscillator();
     gainNode = audioCtx.createGain();
+    
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 80;
 
     // valori compatibili Android
-    osc.frequency.value = 200;
-    gainNode.gain.value = 0.01;
+    osc.frequency.value = 40;
+    gainNode.gain.value = 0.0005;
 
-    osc.connect(gainNode);
+    osc.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
     osc.start();
