@@ -8,18 +8,40 @@ if ('serviceWorker' in navigator) {
 
 // Funzione per salvare lo stato dei campi
 function salvaStatoTemporaneo() {
-    localStorage.setItem('ingresso', inputIngresso.value);
-    localStorage.setItem('inizioPausa', inputInizioPausa.value);
-    localStorage.setItem('finePausa', inputFinePausa.value);
+    if (!db) return;
+
+    const transaction = db.transaction([TEMP_STORE], "readwrite");
+    const store = transaction.objectStore(TEMP_STORE);
+
+    store.put({
+        id: "form",
+        ingresso: inputIngresso.value,
+        inizioPausa: inputInizioPausa.value,
+        finePausa: inputFinePausa.value
+    });
 }
 
-// Funzione per ripristinare i campi all'apertura
 function ripristinaStato() {
-    inputIngresso.value = localStorage.getItem('ingresso') || "";
-    inputInizioPausa.value = localStorage.getItem('inizioPausa') || "";
-    inputFinePausa.value = localStorage.getItem('finePausa') || "";
-    aggiornaCalcoliInterfaccia();
+    if (!db) return;
+
+    const transaction = db.transaction([TEMP_STORE], "readonly");
+    const store = transaction.objectStore(TEMP_STORE);
+
+    const req = store.get("form");
+
+    req.onsuccess = function() {
+        const data = req.result;
+        if (!data) return;
+
+        inputIngresso.value = data.ingresso || "";
+        inputInizioPausa.value = data.inizioPausa || "";
+        inputFinePausa.value = data.finePausa || "";
+
+        aggiornaCalcoliInterfaccia();
+    };
 }
+
+
 
 // --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
@@ -37,6 +59,7 @@ let db = null;
 const DB_NAME = "BancaOreProDB";
 const DB_VERSION = 1;
 const STORE_NAME = "giornateLavorative";
+const TEMP_STORE = "statoTemporaneo";
 
 // --- RIFERIMENTI DOM ---
 let tabDashboard, tabArchivio, viewDashboard, viewArchivio;
@@ -169,6 +192,9 @@ function inizializzaIndexedDB(callback) {
             if (!database.objectStoreNames.contains(STORE_NAME)) {
                 database.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
             }
+            if (!database.objectStoreNames.contains(TEMP_STORE)) {
+                database.createObjectStore(TEMP_STORE, { keyPath: "id" });
+}
         };
         request.onsuccess = function(event) {
             db = event.target.result;
@@ -457,7 +483,9 @@ function archiviaGiornataCorrente() {
             inputPermessoOrario.value = "";
             selectTipoGiornata.value = "standard";
             aggiornaCalcoliInterfaccia();
-            localStorage.clear();
+            const transaction = db.transaction([TEMP_STORE], "readwrite");
+            transaction.objectStore(TEMP_STORE).clear();
+
         };
     } catch(e) {
         console.error("Impossibile salvare su DB:", e);
