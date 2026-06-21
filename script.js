@@ -20,9 +20,11 @@ function salvaStatoTemporaneo() {
         finePausa: inputFinePausa.value
     });
 }
-
 function ripristinaStato() {
-    if (!db) return;
+    if (!db) {
+        console.log("DB non pronto, skip");
+        return;
+    }
 
     const transaction = db.transaction([TEMP_STORE], "readonly");
     const store = transaction.objectStore(TEMP_STORE);
@@ -102,9 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     [inputIngresso, inputInizioPausa, inputFinePausa].forEach(el => {
     el.addEventListener('input', salvaStatoTemporaneo);
     });
-
-  // Esegui questo all'avvio
-window.addEventListener('load', ripristinaStato);
 
     // Controllo di Sicurezza: Evita crash a catena se manca qualche ID nell'HTML
     const elementiRichiesti = [
@@ -226,6 +225,8 @@ function caricaDatiDaIndexedDB() {
         console.error("Impossibile leggere i dati salvati:", e);
     }
 }
+
+ripristinaStato():
 
 // --- FUNZIONI DI CALCOLO CORENTI E CORRETTE ---
 function timbraOraAttuale(inputField) {
