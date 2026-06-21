@@ -24,12 +24,6 @@ function ripristinaStato() {
 // Esegui questo all'avvio
 window.addEventListener('load', ripristinaStato);
 
-// Aggiungi un ascoltatore (event listener) a ogni input per salvare automaticamente
-[inputIngresso, inputInizioPausa, inputFinePausa].forEach(el => {
-    el.addEventListener('input', salvaStatoTemporaneo);
-});
-
-
 // --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
     stdMins: 0,
@@ -84,6 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnInizioPausa = document.getElementById('btnInizioPausa');
     btnFinePausa = document.getElementById('btnFinePausa');
     btnOraUscita = document.getElementById('btnOraUscita');
+  // Aggiungi un ascoltatore (event listener) a ogni input per salvare automaticamente
+    [inputIngresso, inputInizioPausa, inputFinePausa].forEach(el => {
+    el.addEventListener('input', salvaStatoTemporaneo);
+    });
 
     // Controllo di Sicurezza: Evita crash a catena se manca qualche ID nell'HTML
     const elementiRichiesti = [
