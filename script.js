@@ -20,7 +20,8 @@ function salvaStatoTemporaneo() {
         finePausa: inputFinePausa.value
     });
 }
-function ripristinaStato() {
+
+function ripristinaStato(callback) {
     if (!db) {
         console.log("DB non pronto, skip");
         return;
@@ -28,22 +29,22 @@ function ripristinaStato() {
 
     const transaction = db.transaction([TEMP_STORE], "readonly");
     const store = transaction.objectStore(TEMP_STORE);
-
     const req = store.get("form");
 
     req.onsuccess = function() {
         const data = req.result;
-        if (!data) return;
 
-        inputIngresso.value = data.ingresso || "";
-        inputInizioPausa.value = data.inizioPausa || "";
-        inputFinePausa.value = data.finePausa || "";
+        if (data) {
+            inputIngresso.value = data.ingresso || "";
+            inputInizioPausa.value = data.inizioPausa || "";
+            inputFinePausa.value = data.finePausa || "";
+        }
 
         aggiornaCalcoliInterfaccia();
+
+        if (callback) callback(); // ✅ aggiunta
     };
 }
-
-
 
 // --- STATO DELL'APPLICAZIONE ---
 let calcoliOggi = {
@@ -123,10 +124,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Configura gli eventi e attiva le funzioni
     configuraEventiAscolto();
-    inizializzaIndexedDB(() => { 
-      ripristinaStato();  
-      caricaDatiDaIndexedDB(); 
+   inizializzaIndexedDB(() => {
+
+    ripristinaStato(() => {   // ✅ sincronizzato
+
+        caricaDatiDaIndexedDB();
+
     });
+
+});
 
     // Avvia il ciclo continuo in modo sicuro
     setInterval(eseguiCicloMonitoraggioContinuo, 1000);
